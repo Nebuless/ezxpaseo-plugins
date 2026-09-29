@@ -1,6 +1,6 @@
 # EZXPaseo plugin repository
 
-Project guidance for agents. Generated from clean `main` commit `936234d`: one TypeScript Paseo plugin, `paseo-ask-user`. Read actual source and tests before relying on a planning document. Child `AGENTS.md` adds domain rules without replacing this workflow.
+Project guidance for agents. Read actual source and tests before relying on a planning document. Child `AGENTS.md` adds domain rules without replacing this workflow.
 
 ## Where to look
 
@@ -10,10 +10,12 @@ Project guidance for agents. Generated from clean `main` commit `936234d`: one T
 | Broker, MCP helper, protocol                        | `paseo-ask-user/server/`                                                                  |
 | Schemas and RPC shared by both runtimes             | `paseo-ask-user/shared/`                                                                  |
 | Timeline UI                                         | `paseo-ask-user/client/`                                                                  |
+| Pi workflow and standalone sub-agent panel          | `paseo-pi-workflow-subagents/README.md`, nearby tests                                     |
+| Paseo plugin authoring guides                        | `.agents/skills/README.md`                                                               |
 | Repository workflow and release steps               | `docs/repository-workflow.md`, `docs/releasing.md`                                        |
 | User-facing plugin behavior                         | `paseo-ask-user/AGENTS.md`, nearby tests                                                  |
 
-Other plugins added later should own their own manifest, package commands, and scoped guidance. Do not assume uncommitted work from another worktree exists here.
+Each plugin owns its own manifest and package commands. Do not assume uncommitted work from another worktree exists here.
 
 ## Before every change
 

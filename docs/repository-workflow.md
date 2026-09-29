@@ -1,6 +1,6 @@
 # Change workflow
 
-The primary checkout coordinates changes; clean `main` remains a release candidate. `wt` owns linked worktree creation, switching and removal. No remote is configured in this checkout yet, so use local `main` until a remote exists.
+The primary checkout coordinates changes; clean `main` remains a release candidate. `wt` owns linked worktree creation, switching and removal. Use local `main` until a remote exists; then fetch and verify its current base before integration.
 
 ## From request to agent
 
@@ -24,4 +24,4 @@ Uncommitted or ignored plans are still valid handoff artifacts but cannot be ass
 - Run `npm run check`, `npm run quality` and `npm run commits:check` in task worktree, then inspect diff. `.config/wt.toml` repeats all three in a `pre-merge` hook; it is a backstop, not permission to merge.
 - `wt config show` validates project config. `qlty config validate` checks `.qlty/qlty.toml`; QLTY may fetch its pinned tool plugins on first run. `npm run quality` uses `--no-fix` so checks do not rewrite files.
 - Worktrunk cannot enforce plan-first or agent dispatch by itself. This policy is an agent contract; coordinator checks evidence and ensures returned worktree path belongs to the task.
-- In this checkout `main` is another branch at `936234d`, but the primary checkout currently contains unrelated dirty `fix/omp-chat-mcp-hook` work. Do not switch it to `main` or absorb those edits to satisfy cleanliness.
+- Do not switch a dirty primary checkout to `main` or absorb its edits to satisfy cleanliness.
