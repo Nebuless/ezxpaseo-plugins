@@ -15,7 +15,8 @@ export function createButtonsPanel(client: PluginClientContext) {
   }: PluginAgentPanelProps) {
     const instanceId = `button-demo-${useId().replace(/[^a-z0-9-]/g, "")}`;
     useEffect(() => {
-      const openPanel = () => client.openPanel("button-demo", { workspaceId, agentId });
+      const openPanel = () =>
+        client.openPanel("button-demo", { workspaceId, agentId });
       const header = client.addHeaderButton({
         id: instanceId,
         workspaceId,
@@ -51,7 +52,10 @@ export function createButtonsPanel(client: PluginClientContext) {
           padding: layout.compact ? 16 : 24,
           backgroundColor: theme.colors.surface0,
         },
-        title: { color: theme.colors.foreground, fontSize: layout.compact ? 20 : 24 },
+        title: {
+          color: theme.colors.foreground,
+          fontSize: layout.compact ? 20 : 24,
+        },
         detail: { color: theme.colors.foregroundMuted },
       }),
       [layout.compact, theme],
@@ -59,7 +63,9 @@ export function createButtonsPanel(client: PluginClientContext) {
 
     return (
       <View style={styles.root}>
-        <Text accessibilityRole="header" style={styles.title}>Button registrations</Text>
+        <Text accessibilityRole="header" style={styles.title}>
+          Button registrations
+        </Text>
         <Text style={styles.detail}>{PANEL_COPY}</Text>
       </View>
     );

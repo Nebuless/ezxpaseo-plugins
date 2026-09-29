@@ -72,7 +72,11 @@ function runHelper(settings: RuntimeSettings): void {
               additionalProperties: false,
               required: ["text"],
               properties: {
-                text: { type: "string", minLength: 1, maxLength: settings.maxTextLength },
+                text: {
+                  type: "string",
+                  minLength: 1,
+                  maxLength: settings.maxTextLength,
+                },
               },
             },
           },
@@ -108,7 +112,9 @@ function runHelper(settings: RuntimeSettings): void {
       }
       result(id, {
         isError: true,
-        content: [{ type: "text", text: "Expected text with 1 to 256 characters." }],
+        content: [
+          { type: "text", text: "Expected text with 1 to 256 characters." },
+        ],
       });
       return;
     }
@@ -129,7 +135,11 @@ function runHelper(settings: RuntimeSettings): void {
       try {
         handle(JSON.parse(line));
       } catch (parseError) {
-        error(null, -32700, parseError instanceof Error ? parseError.message : "Invalid JSON.");
+        error(
+          null,
+          -32700,
+          parseError instanceof Error ? parseError.message : "Invalid JSON.",
+        );
       }
     }
   }

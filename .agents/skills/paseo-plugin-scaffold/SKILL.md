@@ -6,9 +6,9 @@ compatibility: Paseo 0.9.2 SDK baseline, Node.js 22+, npm and TypeScript. Instal
 
 # Scaffold a plugin
 
-| Goal | Read | Use |
-| --- | --- | --- |
-| New project | [Project contract](references/project.md) | [Complete template](assets/template/package.json) |
+| Goal                             | Read                                           | Use                                                |
+| -------------------------------- | ---------------------------------------------- | -------------------------------------------------- |
+| New project                      | [Project contract](references/project.md)      | [Complete template](assets/template/package.json)  |
 | Imports, bundles or dependencies | [Runtime boundaries](references/boundaries.md) | [TypeScript config](assets/template/tsconfig.json) |
 
 1. Check daemon/app versions and current docs. Use `paseo plugin init /absolute/path/to/plugin` when available. It writes files, not installed dependencies. Otherwise copy `assets/template/` as a complete server-only lifecycle logger.

@@ -50,16 +50,23 @@ export function HostsSurface({ host, theme, layout }: PluginSurfaceProps) {
     const sequence = ++requestSequence.current;
     const summary = hosts.find((candidate) => candidate.serverId === serverId);
     if (summary?.status !== "online") {
-      setResult(`${summary?.label ?? serverId} is disconnected. No failover attempted.`);
+      setResult(
+        `${summary?.label ?? serverId} is disconnected. No failover attempted.`,
+      );
       return;
     }
 
     try {
-      const count = await getCachedCount(serverId, "agents:list:all", Date.now(), async () => {
-        const paseo = getPaseoClient(serverId);
-        const { entries } = await paseo.agents.list();
-        return entries.length;
-      });
+      const count = await getCachedCount(
+        serverId,
+        "agents:list:all",
+        Date.now(),
+        async () => {
+          const paseo = getPaseoClient(serverId);
+          const { entries } = await paseo.agents.list();
+          return entries.length;
+        },
+      );
       if (requestSequence.current === sequence) {
         setResult(`${summary.label}: ${count} agents`);
       }

@@ -1,7 +1,4 @@
-import {
-  type PluginSurfaceProps,
-  useSettings,
-} from "@getpaseo/plugin/client";
+import { type PluginSurfaceProps, useSettings } from "@getpaseo/plugin/client";
 import {
   SettingsAction,
   SettingsCard,
@@ -42,27 +39,51 @@ export function SettingsScreen({ layout, theme }: PluginSurfaceProps) {
   );
 
   if (settings.status === "loading") {
-    return <View style={styles.root}><Text style={styles.status}>Loading settings…</Text></View>;
+    return (
+      <View style={styles.root}>
+        <Text style={styles.status}>Loading settings…</Text>
+      </View>
+    );
   }
   if (settings.status === "error") {
     return (
       <View style={styles.root}>
-        <Text accessibilityRole="alert" style={styles.error}>{settings.error}</Text>
-        <SettingsAction label="Retry" actionLabel="Reload" onPress={() => void settings.reload()} />
+        <Text accessibilityRole="alert" style={styles.error}>
+          {settings.error}
+        </Text>
+        <SettingsAction
+          label="Retry"
+          actionLabel="Reload"
+          onPress={() => void settings.reload()}
+        />
       </View>
     );
   }
   if (settings.status === "invalid") {
     return (
       <View style={styles.root}>
-        <Text accessibilityRole="alert" style={styles.error}>{settings.error}</Text>
-        <SettingsAction label="Stored values" actionLabel="Reset to defaults" onPress={() => void settings.reset()} />
-        <SettingsAction label="Read again" actionLabel="Reload" onPress={() => void settings.reload()} />
+        <Text accessibilityRole="alert" style={styles.error}>
+          {settings.error}
+        </Text>
+        <SettingsAction
+          label="Stored values"
+          actionLabel="Reset to defaults"
+          onPress={() => void settings.reset()}
+        />
+        <SettingsAction
+          label="Read again"
+          actionLabel="Reload"
+          onPress={() => void settings.reload()}
+        />
       </View>
     );
   }
   if (!draft) {
-    return <View style={styles.root}><Text style={styles.status}>Preparing editor…</Text></View>;
+    return (
+      <View style={styles.root}>
+        <Text style={styles.status}>Preparing editor…</Text>
+      </View>
+    );
   }
 
   const save = async () => {
@@ -89,9 +110,11 @@ export function SettingsScreen({ layout, theme }: PluginSurfaceProps) {
             disabled={settings.saving}
             error={settings.saveError}
             onChangeText={(displayName) =>
-              setDraft((current) => current
-                ? { ...current, values: { ...current.values, displayName } }
-                : current)
+              setDraft((current) =>
+                current
+                  ? { ...current, values: { ...current.values, displayName } }
+                  : current,
+              )
             }
           />
           <SettingsSwitch
@@ -99,9 +122,11 @@ export function SettingsScreen({ layout, theme }: PluginSurfaceProps) {
             value={draft.values.showHints}
             disabled={settings.saving}
             onValueChange={(showHints) =>
-              setDraft((current) => current
-                ? { ...current, values: { ...current.values, showHints } }
-                : current)
+              setDraft((current) =>
+                current
+                  ? { ...current, values: { ...current.values, showHints } }
+                  : current,
+              )
             }
           />
           <SettingsAction
@@ -118,7 +143,11 @@ export function SettingsScreen({ layout, theme }: PluginSurfaceProps) {
           />
         </SettingsCard>
       </SettingsSection>
-      {settings.saveError ? <Text accessibilityRole="alert" style={styles.error}>{settings.saveError}</Text> : null}
+      {settings.saveError ? (
+        <Text accessibilityRole="alert" style={styles.error}>
+          {settings.saveError}
+        </Text>
+      ) : null}
     </View>
   );
 }

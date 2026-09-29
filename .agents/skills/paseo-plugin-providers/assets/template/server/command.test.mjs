@@ -6,15 +6,12 @@ import {
 } from "./command.ts";
 
 test("uses an executable absolute path with the documented ACP argument", () => {
-  assert.deepEqual(resolveGeminiCommand({ PASEO_GEMINI_BIN: process.execPath }), [
-    process.execPath,
-    "--acp",
-  ]);
+  assert.deepEqual(
+    resolveGeminiCommand({ PASEO_GEMINI_BIN: process.execPath }),
+    [process.execPath, "--acp"],
+  );
 });
 
 test("fails clearly when binary configuration is absent", () => {
-  assert.throws(
-    () => resolveGeminiCommand({}),
-    GeminiBinaryConfigurationError,
-  );
+  assert.throws(() => resolveGeminiCommand({}), GeminiBinaryConfigurationError);
 });

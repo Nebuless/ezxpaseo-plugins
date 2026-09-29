@@ -6,10 +6,10 @@ compatibility: Paseo plugin SDK 0.9.2; templates require Node.js and TypeScript 
 
 # Paseo plugin themes
 
-| Goal | Read | Start from |
-| --- | --- | --- |
+| Goal                          | Read                                   | Start from                                    |
+| ----------------------------- | -------------------------------------- | --------------------------------------------- |
 | Define and register a palette | [Theme contract](references/themes.md) | [template](assets/template/paseo-plugin.json) |
-| Check contrast and fallback | [Validation](references/validation.md) | `assets/template/package.json` |
+| Check contrast and fallback   | [Validation](references/validation.md) | `assets/template/package.json`                |
 
 ## Workflow
 
@@ -48,6 +48,5 @@ terminal, success/warning/error states, and focus rings; then disable the plugin
 - UI code contains no copied palette colors.
 - Selection, persistence, and removal fallback work in the host.
 - Validator, typecheck, tests, and visual host QA pass.
-
 
 Run existing focused tests when present. This minimal template has no `npm test` alias: typechecking is not a behavior test. Before live installation or reload, read [trust and acceptance gates](../paseo-plugin-authoring/references/quality-gates.md). Require authorization, inspect exact runtime ID with `paseo plugin ls <id>` and `paseo plugin logs <id>`, then exercise the contribution.

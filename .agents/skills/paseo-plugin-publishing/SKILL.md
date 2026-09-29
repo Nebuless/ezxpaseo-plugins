@@ -6,9 +6,9 @@ compatibility: Node.js 22+, npm and Git as required. Publishing credentials belo
 
 # Package a plugin
 
-| Goal | Read | Template |
-| --- | --- | --- |
-| npm package files and dependencies | [npm artifacts](references/npm.md) | [Release checks](assets/release-checks.md) |
+| Goal                                | Read                                     | Template                                   |
+| ----------------------------------- | ---------------------------------------- | ------------------------------------------ |
+| npm package files and dependencies  | [npm artifacts](references/npm.md)       | [Release checks](assets/release-checks.md) |
 | Git preparation or private registry | [Preparation](references/preparation.md) | [Release checks](assets/release-checks.md) |
 
 1. Start from working plugin and verified behavior. Read source and dependencies, then choose npm or Git distribution.

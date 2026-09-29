@@ -11,7 +11,7 @@ Project guidance for agents. Read actual source and tests before relying on a pl
 | Schemas and RPC shared by both runtimes             | `paseo-ask-user/shared/`                                                                  |
 | Timeline UI                                         | `paseo-ask-user/client/`                                                                  |
 | Pi workflow and standalone sub-agent panel          | `paseo-pi-workflow-subagents/README.md`, nearby tests                                     |
-| Paseo plugin authoring guides                        | `.agents/skills/README.md`                                                               |
+| Paseo plugin authoring guides                       | `.agents/skills/README.md`                                                                |
 | Repository workflow and release steps               | `docs/repository-workflow.md`, `docs/releasing.md`                                        |
 | User-facing plugin behavior                         | `paseo-ask-user/AGENTS.md`, nearby tests                                                  |
 

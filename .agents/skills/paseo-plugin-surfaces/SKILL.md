@@ -8,10 +8,10 @@ compatibility: Paseo plugin SDK 0.9.2; templates require Node.js and TypeScript 
 
 Build a sidebar-owned screen that works on desktop, web, iOS, and Android.
 
-| Goal | Read | Start from |
-| --- | --- | --- |
-| Register a surface and sidebar item | [Surface API](references/surfaces.md) | [template](assets/template/paseo-plugin.json) |
-| Validate and exercise the plugin | [Validation](references/validation.md) | `assets/template/package.json` |
+| Goal                                | Read                                   | Start from                                    |
+| ----------------------------------- | -------------------------------------- | --------------------------------------------- |
+| Register a surface and sidebar item | [Surface API](references/surfaces.md)  | [template](assets/template/paseo-plugin.json) |
+| Validate and exercise the plugin    | [Validation](references/validation.md) | `assets/template/package.json`                |
 
 ## Workflow
 
@@ -57,6 +57,5 @@ demo control, and confirm reload removes and restores the contribution.
 - Text, backgrounds, spacing, and controls adapt to theme and compact mode.
 - Keyboard/screen-reader labels describe the control.
 - Static validation, typecheck, tests, and real-host checks pass.
-
 
 Run existing focused tests when present. This minimal template has no `npm test` alias: typechecking is not a behavior test. Before live installation or reload, read [trust and acceptance gates](../paseo-plugin-authoring/references/quality-gates.md). Require authorization, inspect exact runtime ID with `paseo plugin ls <id>` and `paseo plugin logs <id>`, then exercise the contribution.

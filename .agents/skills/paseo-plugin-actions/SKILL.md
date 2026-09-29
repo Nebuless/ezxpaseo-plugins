@@ -6,10 +6,10 @@ compatibility: Paseo plugin SDK 0.9.2; templates require Node.js and TypeScript 
 
 # Paseo plugin actions
 
-| Goal | Read | Start from |
-| --- | --- | --- |
+| Goal                                    | Read                                      | Start from                                    |
+| --------------------------------------- | ----------------------------------------- | --------------------------------------------- |
 | Register command and slash entry points | [Action contracts](references/actions.md) | [template](assets/template/paseo-plugin.json) |
-| Check collisions and host behavior | [Validation](references/validation.md) | `assets/template/package.json` |
+| Check collisions and host behavior      | [Validation](references/validation.md)    | `assets/template/package.json`                |
 
 ## Workflow
 
@@ -48,6 +48,5 @@ Confirm both open the same panel. Also verify the slash command is unavailable w
 - Context is supplied by Paseo and the target panel opens.
 - Collision and attachment behavior is documented and exercised.
 - Validator, typecheck, tests, and host QA pass.
-
 
 Run existing focused tests when present. This minimal template has no `npm test` alias: typechecking is not a behavior test. Before live installation or reload, read [trust and acceptance gates](../paseo-plugin-authoring/references/quality-gates.md). Require authorization, inspect exact runtime ID with `paseo plugin ls <id>` and `paseo plugin logs <id>`, then exercise the contribution.

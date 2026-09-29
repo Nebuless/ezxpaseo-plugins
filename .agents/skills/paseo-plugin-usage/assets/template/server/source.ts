@@ -88,7 +88,11 @@ export async function fetchLocalUsage(value: unknown): Promise<UsageReport> {
         status: "available",
         windows: [],
         details: [
-          { id: "activity", label: "Activity", value: "No local activity recorded." },
+          {
+            id: "activity",
+            label: "Activity",
+            value: "No local activity recorded.",
+          },
         ],
       };
     }
@@ -105,7 +109,9 @@ export async function fetchLocalUsage(value: unknown): Promise<UsageReport> {
           headline: true,
         }),
       ],
-      details: [{ id: "activity", label: "Activity", value: localWindow.detail }],
+      details: [
+        { id: "activity", label: "Activity", value: localWindow.detail },
+      ],
     };
   } catch (error) {
     if (hasErrorCode(error, "ENOENT")) {
@@ -114,7 +120,8 @@ export async function fetchLocalUsage(value: unknown): Promise<UsageReport> {
     return {
       status: "error",
       windows: [],
-      error: error instanceof Error ? error.message : "Unknown local meter error.",
+      error:
+        error instanceof Error ? error.message : "Unknown local meter error.",
     };
   }
 }

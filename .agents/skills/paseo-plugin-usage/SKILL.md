@@ -10,10 +10,10 @@ against SDK 0.9.2; that package does not export `/server/usage`.
 
 ## Reference index
 
-| Goal | Read | Template |
-| --- | --- | --- |
+| Goal                                 | Read                            | Template                             |
+| ------------------------------------ | ------------------------------- | ------------------------------------ |
 | Discover account and stable identity | [Guide](references/identity.md) | [Complete template](assets/template) |
-| Report windows and cache behavior | [Guide](references/reports.md) | [Complete template](assets/template) |
+| Report windows and cache behavior    | [Guide](references/reports.md)  | [Complete template](assets/template) |
 
 Use [sample meter JSON](assets/local-meter.json) only to learn the input shape. Set
 `PASEO_LOCAL_USAGE_FILE` on the daemon to a file written by the actual local meter.

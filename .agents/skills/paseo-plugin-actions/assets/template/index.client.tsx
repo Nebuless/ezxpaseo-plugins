@@ -4,7 +4,9 @@ import type {
 } from "@getpaseo/plugin/client";
 import { ActionPanel } from "./client/action-panel";
 
-function openActionPanel({ openPanel }: Pick<PluginAgentCommandContext, "openPanel">) {
+function openActionPanel({
+  openPanel,
+}: Pick<PluginAgentCommandContext, "openPanel">) {
   openPanel("action-demo");
 }
 

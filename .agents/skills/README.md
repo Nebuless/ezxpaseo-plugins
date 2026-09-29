@@ -8,28 +8,28 @@ This repository's `.pi/skills` and `.omp/skills` also contain unrelated OpenSpec
 
 ## Scope
 
-| Goal | Skill |
-| --- | --- |
-| Choose contributions and verification gates | [Authoring](paseo-plugin-authoring/SKILL.md) |
-| Create entries, manifest, dependencies and runtime boundaries | [Scaffold](paseo-plugin-scaffold/SKILL.md) |
-| Resolve local, npm, Git, monorepo and remote-host sources | [Sources](paseo-plugin-sources/SKILL.md) |
-| Surface and sidebar navigation | [Surfaces](paseo-plugin-surfaces/SKILL.md) |
-| Workspace, agent and Explorer panels | [Panels](paseo-plugin-panels/SKILL.md) |
-| Command Center and composer slash actions | [Actions](paseo-plugin-actions/SKILL.md) |
-| Header buttons, menus, popovers and composer pills | [Buttons](paseo-plugin-buttons/SKILL.md) |
-| Timeline transformation, rendering and append | [Timeline](paseo-plugin-timeline/SKILL.md) |
-| Searchable composer attachments | [Attachments](paseo-plugin-attachments/SKILL.md) |
-| Persisted settings, migrations and revision conflicts | [Settings](paseo-plugin-settings/SKILL.md) |
-| Light/dark theme palettes | [Themes](paseo-plugin-themes/SKILL.md) |
-| Shared contracts and backend RPC | [RPC](paseo-plugin-rpc/SKILL.md) |
-| Lifecycle, before hooks, permissions and follow-ups | [Hooks](paseo-plugin-hooks/SKILL.md) |
-| MCP injection and subprocess helpers | [MCP](paseo-plugin-mcp/SKILL.md) |
-| Direct provider protocol and ACP adapters | [Providers](paseo-plugin-providers/SKILL.md) |
-| Account identity and usage reporting, Paseo 0.9.3+ | [Usage](paseo-plugin-usage/SKILL.md) |
-| Selected-host SDK calls and explicit cross-host access | [Hosts](paseo-plugin-hosts/SKILL.md) |
-| npm artifacts and Git preparation | [Publishing](paseo-plugin-publishing/SKILL.md) |
-| Old mixed entries and changed button contracts | [Migration](paseo-plugin-migration/SKILL.md) |
-| Static checks, host QA and load-failure diagnosis | [Validation](paseo-plugin-validation/SKILL.md) |
+| Goal                                                          | Skill                                            |
+| ------------------------------------------------------------- | ------------------------------------------------ |
+| Choose contributions and verification gates                   | [Authoring](paseo-plugin-authoring/SKILL.md)     |
+| Create entries, manifest, dependencies and runtime boundaries | [Scaffold](paseo-plugin-scaffold/SKILL.md)       |
+| Resolve local, npm, Git, monorepo and remote-host sources     | [Sources](paseo-plugin-sources/SKILL.md)         |
+| Surface and sidebar navigation                                | [Surfaces](paseo-plugin-surfaces/SKILL.md)       |
+| Workspace, agent and Explorer panels                          | [Panels](paseo-plugin-panels/SKILL.md)           |
+| Command Center and composer slash actions                     | [Actions](paseo-plugin-actions/SKILL.md)         |
+| Header buttons, menus, popovers and composer pills            | [Buttons](paseo-plugin-buttons/SKILL.md)         |
+| Timeline transformation, rendering and append                 | [Timeline](paseo-plugin-timeline/SKILL.md)       |
+| Searchable composer attachments                               | [Attachments](paseo-plugin-attachments/SKILL.md) |
+| Persisted settings, migrations and revision conflicts         | [Settings](paseo-plugin-settings/SKILL.md)       |
+| Light/dark theme palettes                                     | [Themes](paseo-plugin-themes/SKILL.md)           |
+| Shared contracts and backend RPC                              | [RPC](paseo-plugin-rpc/SKILL.md)                 |
+| Lifecycle, before hooks, permissions and follow-ups           | [Hooks](paseo-plugin-hooks/SKILL.md)             |
+| MCP injection and subprocess helpers                          | [MCP](paseo-plugin-mcp/SKILL.md)                 |
+| Direct provider protocol and ACP adapters                     | [Providers](paseo-plugin-providers/SKILL.md)     |
+| Account identity and usage reporting, Paseo 0.9.3+            | [Usage](paseo-plugin-usage/SKILL.md)             |
+| Selected-host SDK calls and explicit cross-host access        | [Hosts](paseo-plugin-hosts/SKILL.md)             |
+| npm artifacts and Git preparation                             | [Publishing](paseo-plugin-publishing/SKILL.md)   |
+| Old mixed entries and changed button contracts                | [Migration](paseo-plugin-migration/SKILL.md)     |
+| Static checks, host QA and load-failure diagnosis             | [Validation](paseo-plugin-validation/SKILL.md)   |
 
 ## Local verification
 

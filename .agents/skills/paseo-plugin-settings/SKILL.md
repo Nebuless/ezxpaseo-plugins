@@ -6,10 +6,10 @@ compatibility: Paseo plugin SDK 0.9.2; templates require Node.js and TypeScript 
 
 # Paseo plugin settings
 
-| Goal | Read | Start from |
-| --- | --- | --- |
-| Define and persist settings | [Settings contracts](references/settings.md) | [template](assets/template/paseo-plugin.json) |
-| Handle conflicts and invalid data | [Drafts and validation](references/drafts.md) | `client/settings-screen.tsx` |
+| Goal                              | Read                                          | Start from                                    |
+| --------------------------------- | --------------------------------------------- | --------------------------------------------- |
+| Define and persist settings       | [Settings contracts](references/settings.md)  | [template](assets/template/paseo-plugin.json) |
+| Handle conflicts and invalid data | [Drafts and validation](references/drafts.md) | `client/settings-screen.tsx`                  |
 
 ## Workflow
 
@@ -49,6 +49,5 @@ draft is dirty, explicit discard, reset of invalid data, daemon restart, and a s
 - All hook states and `saveError` are visible and actionable.
 - Failed/conflicting saves preserve draft values and revision.
 - Validator, typecheck, tests, and multi-client host QA pass.
-
 
 Run existing focused tests when present. This minimal template has no `npm test` alias: typechecking is not a behavior test. Before live installation or reload, read [trust and acceptance gates](../paseo-plugin-authoring/references/quality-gates.md). Require authorization, inspect exact runtime ID with `paseo plugin ls <id>` and `paseo plugin logs <id>`, then exercise the contribution.

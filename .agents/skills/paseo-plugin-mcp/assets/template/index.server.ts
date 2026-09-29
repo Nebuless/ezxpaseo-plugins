@@ -6,7 +6,8 @@ const HELPER_SOURCE = createHelperSource();
 
 export default function contribute(server: PluginServerContext) {
   const removeCreate = server.before("agent.create", ({ request }) => {
-    if (request.config.internal || request.config.provider === "omp") return request;
+    if (request.config.internal || request.config.provider === "omp")
+      return request;
     if (request.config.mcpServers?.[SERVER_NAME]) {
       throw new Error(`MCP server name is already configured: ${SERVER_NAME}`);
     }

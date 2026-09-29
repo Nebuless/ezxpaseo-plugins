@@ -10,19 +10,19 @@ Expand the existing `paseo-plugin` workflow, not its stale examples. Read only r
 
 ## Route the goal
 
-| Need | Read first | Then load |
-| --- | --- | --- |
-| New plugin or several contributions | [Contribution map](references/contribution-map.md) | [Scaffold](../paseo-plugin-scaffold/SKILL.md) |
-| Screens, navigation, panel context | [Contribution map](references/contribution-map.md) | [Surfaces](../paseo-plugin-surfaces/SKILL.md), [panels](../paseo-plugin-panels/SKILL.md) |
-| Composer or workspace actions | [Contribution map](references/contribution-map.md) | [Actions](../paseo-plugin-actions/SKILL.md), [buttons](../paseo-plugin-buttons/SKILL.md) |
-| Custom conversation UI | [Quality gates](references/quality-gates.md) | [Timeline](../paseo-plugin-timeline/SKILL.md) |
-| External resource attachment | [Contribution map](references/contribution-map.md) | [Attachments](../paseo-plugin-attachments/SKILL.md), [RPC](../paseo-plugin-rpc/SKILL.md) |
-| Persistent configuration or palette | [Quality gates](references/quality-gates.md) | [Settings](../paseo-plugin-settings/SKILL.md), [themes](../paseo-plugin-themes/SKILL.md) |
-| Configuration, permissions, follow-ups | [Quality gates](references/quality-gates.md) | [Hooks](../paseo-plugin-hooks/SKILL.md), [MCP](../paseo-plugin-mcp/SKILL.md) |
-| New coding agent or quota integration | [Contribution map](references/contribution-map.md) | [Providers](../paseo-plugin-providers/SKILL.md), [usage](../paseo-plugin-usage/SKILL.md) |
-| Remote hosts or SDK operations | [Quality gates](references/quality-gates.md) | [Hosts](../paseo-plugin-hosts/SKILL.md) |
-| Installation, release or older plugin | [Quality gates](references/quality-gates.md) | [Sources](../paseo-plugin-sources/SKILL.md), [publishing](../paseo-plugin-publishing/SKILL.md), [migration](../paseo-plugin-migration/SKILL.md) |
-| Failure diagnosis or final acceptance | [Quality gates](references/quality-gates.md) | [Validation](../paseo-plugin-validation/SKILL.md) |
+| Need                                   | Read first                                         | Then load                                                                                                                                       |
+| -------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| New plugin or several contributions    | [Contribution map](references/contribution-map.md) | [Scaffold](../paseo-plugin-scaffold/SKILL.md)                                                                                                   |
+| Screens, navigation, panel context     | [Contribution map](references/contribution-map.md) | [Surfaces](../paseo-plugin-surfaces/SKILL.md), [panels](../paseo-plugin-panels/SKILL.md)                                                        |
+| Composer or workspace actions          | [Contribution map](references/contribution-map.md) | [Actions](../paseo-plugin-actions/SKILL.md), [buttons](../paseo-plugin-buttons/SKILL.md)                                                        |
+| Custom conversation UI                 | [Quality gates](references/quality-gates.md)       | [Timeline](../paseo-plugin-timeline/SKILL.md)                                                                                                   |
+| External resource attachment           | [Contribution map](references/contribution-map.md) | [Attachments](../paseo-plugin-attachments/SKILL.md), [RPC](../paseo-plugin-rpc/SKILL.md)                                                        |
+| Persistent configuration or palette    | [Quality gates](references/quality-gates.md)       | [Settings](../paseo-plugin-settings/SKILL.md), [themes](../paseo-plugin-themes/SKILL.md)                                                        |
+| Configuration, permissions, follow-ups | [Quality gates](references/quality-gates.md)       | [Hooks](../paseo-plugin-hooks/SKILL.md), [MCP](../paseo-plugin-mcp/SKILL.md)                                                                    |
+| New coding agent or quota integration  | [Contribution map](references/contribution-map.md) | [Providers](../paseo-plugin-providers/SKILL.md), [usage](../paseo-plugin-usage/SKILL.md)                                                        |
+| Remote hosts or SDK operations         | [Quality gates](references/quality-gates.md)       | [Hosts](../paseo-plugin-hosts/SKILL.md)                                                                                                         |
+| Installation, release or older plugin  | [Quality gates](references/quality-gates.md)       | [Sources](../paseo-plugin-sources/SKILL.md), [publishing](../paseo-plugin-publishing/SKILL.md), [migration](../paseo-plugin-migration/SKILL.md) |
+| Failure diagnosis or final acceptance  | [Quality gates](references/quality-gates.md)       | [Validation](../paseo-plugin-validation/SKILL.md)                                                                                               |
 
 ## Workflow
 

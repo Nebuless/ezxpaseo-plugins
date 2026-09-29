@@ -13,7 +13,10 @@ export function AgentOverview({
   theme,
   workspaceId,
 }: PluginAgentPanelProps) {
-  const workspace = useWorkspace(workspaceId, ({ name, status }) => ({ name, status }));
+  const workspace = useWorkspace(workspaceId, ({ name, status }) => ({
+    name,
+    status,
+  }));
   const agent = useAgent(agentId, ({ id, provider, status, title }) => ({
     id,
     provider,
@@ -28,7 +31,10 @@ export function AgentOverview({
         padding: layout.compact ? 16 : 24,
         backgroundColor: theme.colors.surface0,
       },
-      title: { color: theme.colors.foreground, fontSize: layout.compact ? 20 : 24 },
+      title: {
+        color: theme.colors.foreground,
+        fontSize: layout.compact ? 20 : 24,
+      },
       detail: { color: theme.colors.foregroundMuted },
       warning: { color: theme.colors.statusWarning },
     }),
@@ -38,17 +44,23 @@ export function AgentOverview({
   if (!workspace || !agent) {
     return (
       <View style={styles.screen}>
-        <Text accessibilityRole="alert" style={styles.warning}>{EMPTY_LABEL}</Text>
+        <Text accessibilityRole="alert" style={styles.warning}>
+          {EMPTY_LABEL}
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={styles.screen}>
-      <Text accessibilityRole="header" style={styles.title}>{agent.title ?? agent.id}</Text>
+      <Text accessibilityRole="header" style={styles.title}>
+        {agent.title ?? agent.id}
+      </Text>
       <Text style={styles.detail}>Provider: {agent.provider}</Text>
       <Text style={styles.detail}>Agent: {agent.status}</Text>
-      <Text style={styles.detail}>Workspace: {workspace.name} ({workspace.status})</Text>
+      <Text style={styles.detail}>
+        Workspace: {workspace.name} ({workspace.status})
+      </Text>
     </View>
   );
 }

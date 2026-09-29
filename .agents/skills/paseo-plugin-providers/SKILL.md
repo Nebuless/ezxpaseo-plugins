@@ -10,9 +10,9 @@ when the agent exposes a different SDK, JSON-RPC API, or process protocol.
 
 ## Reference index
 
-| Goal | Read | Template |
-| --- | --- | --- |
-| Wrap existing ACP agent | [Guide](references/acp.md) | [Complete template](assets/template) |
+| Goal                             | Read                                   | Template                             |
+| -------------------------------- | -------------------------------------- | ------------------------------------ |
+| Wrap existing ACP agent          | [Guide](references/acp.md)             | [Complete template](assets/template) |
 | Implement native direct protocol | [Guide](references/direct-protocol.md) | [Complete template](assets/template) |
 
 ## Read first

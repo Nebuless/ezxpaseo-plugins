@@ -13,7 +13,10 @@ export function DemoSurface({ host, layout, theme }: PluginSurfaceProps) {
         padding: layout.compact ? 16 : 24,
         backgroundColor: theme.colors.surface0,
       },
-      title: { color: theme.colors.foreground, fontSize: layout.compact ? 20 : 26 },
+      title: {
+        color: theme.colors.foreground,
+        fontSize: layout.compact ? 20 : 26,
+      },
       detail: { color: theme.colors.foregroundMuted },
       button: {
         padding: layout.compact ? 12 : 14,
@@ -30,7 +33,9 @@ export function DemoSurface({ host, layout, theme }: PluginSurfaceProps) {
       <Text accessibilityRole="header" style={styles.title}>
         {DEMO_LABEL}
       </Text>
-      <Text style={styles.detail}>Connected to {host.label}. Count: {count}</Text>
+      <Text style={styles.detail}>
+        Connected to {host.label}. Count: {count}
+      </Text>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Increment demo count, currently ${count}`}

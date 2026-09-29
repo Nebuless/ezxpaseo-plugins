@@ -8,6 +8,9 @@ test("matches only the explicit recursive deletion policy", () => {
 });
 
 test("requires the bounded follow-up marker", () => {
-  assert.equal(requestsSingleFollowUp("Please [retry-once] after this turn."), true);
+  assert.equal(
+    requestsSingleFollowUp("Please [retry-once] after this turn."),
+    true,
+  );
   assert.equal(requestsSingleFollowUp("Try again forever."), false);
 });

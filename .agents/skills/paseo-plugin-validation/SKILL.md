@@ -6,10 +6,10 @@ compatibility: Node.js 22+, npm, local plugin dependencies and access to the int
 
 # Validate custom plugins
 
-| Goal | Read | Template |
-| --- | --- | --- |
-| Static checks and behavior acceptance | [Check matrix](references/check-matrix.md) | [QA record](assets/qa-record.md) |
-| Reload, RPC, module or UI failure | [Failure diagnosis](references/failures.md) | [QA record](assets/qa-record.md) |
+| Goal                                  | Read                                        | Template                         |
+| ------------------------------------- | ------------------------------------------- | -------------------------------- |
+| Static checks and behavior acceptance | [Check matrix](references/check-matrix.md)  | [QA record](assets/qa-record.md) |
+| Reload, RPC, module or UI failure     | [Failure diagnosis](references/failures.md) | [QA record](assets/qa-record.md) |
 
 1. Read current manifest, package, entries, tests and SDK version. Reproduce failure before editing existing behavior.
 2. Run shared validator with exact runtime versions, then `npm run typecheck` and focused tests from plugin directory. Inspect every diagnostic. Warnings identify checks still requiring judgment.

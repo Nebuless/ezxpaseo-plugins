@@ -6,10 +6,10 @@ compatibility: Paseo plugin SDK 0.9.2; templates require Node.js and TypeScript 
 
 # Paseo plugin timeline
 
-| Goal | Read | Start from |
-| --- | --- | --- |
-| Transform and render native rows | [Transformers and renderers](references/timeline-rendering.md) | [template](assets/template/paseo-plugin.json) |
-| Append plugin rows from the daemon | [Daemon append](references/timeline-append.md) | renderer schema in the template |
+| Goal                               | Read                                                           | Start from                                    |
+| ---------------------------------- | -------------------------------------------------------------- | --------------------------------------------- |
+| Transform and render native rows   | [Transformers and renderers](references/timeline-rendering.md) | [template](assets/template/paseo-plugin.json) |
+| Append plugin rows from the daemon | [Daemon append](references/timeline-append.md)                 | renderer schema in the template               |
 
 ## Workflow
 
@@ -48,6 +48,5 @@ history, reload the plugin, and test the unavailable-renderer state in a disposa
 - Streaming preserves row identity and uses the phase.
 - Optional append constraints are understood before server use.
 - Validator, typecheck, tests, and live timeline QA pass.
-
 
 Run existing focused tests when present. This minimal template has no `npm test` alias: typechecking is not a behavior test. Before live installation or reload, read [trust and acceptance gates](../paseo-plugin-authoring/references/quality-gates.md). Require authorization, inspect exact runtime ID with `paseo plugin ls <id>` and `paseo plugin logs <id>`, then exercise the contribution.

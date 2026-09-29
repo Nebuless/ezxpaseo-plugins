@@ -24,7 +24,8 @@ export async function getCachedCount(
   const pending = { value: null, expiresAt: 0 };
   cache.set(key, pending);
   const value = await load();
-  if (cache.get(key) === pending) cache.set(key, { value, expiresAt: now + CACHE_MS });
+  if (cache.get(key) === pending)
+    cache.set(key, { value, expiresAt: now + CACHE_MS });
   return value;
 }
 

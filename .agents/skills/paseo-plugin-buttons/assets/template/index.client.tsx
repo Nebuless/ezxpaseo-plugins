@@ -14,7 +14,12 @@ export default function contribute(client: PluginClientContext) {
     title: "Open button demo",
     icon: "MousePointerClick",
     context: "agent",
-    onSelect({ openPanel }) { openPanel("button-demo"); },
+    onSelect({ openPanel }) {
+      openPanel("button-demo");
+    },
   });
-  return () => { removeAction(); removePanel(); };
+  return () => {
+    removeAction();
+    removePanel();
+  };
 }

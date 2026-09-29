@@ -11,9 +11,9 @@ broker.
 
 ## Reference index
 
-| Goal | Read | Template |
-| --- | --- | --- |
-| Inject bundle-safe helper | [Guide](references/bundling.md) | [Complete template](assets/template) |
+| Goal                            | Read                            | Template                             |
+| ------------------------------- | ------------------------------- | ------------------------------------ |
+| Inject bundle-safe helper       | [Guide](references/bundling.md) | [Complete template](assets/template) |
 | Validate protocol and packaging | [Guide](references/protocol.md) | [Complete template](assets/template) |
 
 ## Read first

@@ -10,10 +10,10 @@ fall through to another host when the requested host is disconnected.
 
 ## Reference index
 
-| Goal | Read | Template |
-| --- | --- | --- |
-| Select or explicitly target host | [Guide](references/clients.md) | [Complete template](assets/template) |
-| Cache values and guard late results | [Guide](references/state.md) | [Complete template](assets/template) |
+| Goal                                | Read                           | Template                             |
+| ----------------------------------- | ------------------------------ | ------------------------------------ |
+| Select or explicitly target host    | [Guide](references/clients.md) | [Complete template](assets/template) |
+| Cache values and guard late results | [Guide](references/state.md)   | [Complete template](assets/template) |
 
 ## Read first
 

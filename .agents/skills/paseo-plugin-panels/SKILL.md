@@ -6,10 +6,10 @@ compatibility: Paseo plugin SDK 0.9.2; templates require Node.js and TypeScript 
 
 # Paseo plugin panels
 
-| Goal | Read | Start from |
-| --- | --- | --- |
-| Choose context, placement, and selectors | [Panel API](references/panels.md) | [template](assets/template/paseo-plugin.json) |
-| Prove panel behavior | [Validation](references/validation.md) | `assets/template/package.json` |
+| Goal                                     | Read                                   | Start from                                    |
+| ---------------------------------------- | -------------------------------------- | --------------------------------------------- |
+| Choose context, placement, and selectors | [Panel API](references/panels.md)      | [template](assets/template/paseo-plugin.json) |
+| Prove panel behavior                     | [Validation](references/validation.md) | `assets/template/package.json`                |
 
 ## Workflow
 
@@ -53,6 +53,5 @@ compact width, and switch themes.
 - Selectors cover exactly the rendered fields.
 - Missing workspace and agent records render safely.
 - Typecheck, tests, validator, and real-host QA pass.
-
 
 Run existing focused tests when present. This minimal template has no `npm test` alias: typechecking is not a behavior test. Before live installation or reload, read [trust and acceptance gates](../paseo-plugin-authoring/references/quality-gates.md). Require authorization, inspect exact runtime ID with `paseo plugin ls <id>` and `paseo plugin logs <id>`, then exercise the contribution.

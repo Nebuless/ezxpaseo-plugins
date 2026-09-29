@@ -15,7 +15,12 @@ export default function contribute(client: PluginClientContext) {
     title: "Open agent overview",
     icon: "PanelsTopLeft",
     context: "agent",
-    onSelect({ openPanel }) { openPanel("agent-overview"); },
+    onSelect({ openPanel }) {
+      openPanel("agent-overview");
+    },
   });
-  return () => { removeAction(); removePanel(); };
+  return () => {
+    removeAction();
+    removePanel();
+  };
 }

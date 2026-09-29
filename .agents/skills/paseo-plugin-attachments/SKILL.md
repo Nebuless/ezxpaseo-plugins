@@ -6,10 +6,10 @@ compatibility: Paseo plugin SDK 0.9.2; templates require Node.js and TypeScript 
 
 # Paseo plugin attachments
 
-| Goal | Read | Start from |
-| --- | --- | --- |
+| Goal                                   | Read                                              | Start from                                    |
+| -------------------------------------- | ------------------------------------------------- | --------------------------------------------- |
 | Define source, RPC, and search handler | [Attachment contracts](references/attachments.md) | [template](assets/template/paseo-plugin.json) |
-| Validate search and composer behavior | [Validation](references/validation.md) | `assets/template/package.json` |
+| Validate search and composer behavior  | [Validation](references/validation.md)            | `assets/template/package.json`                |
 
 ## Workflow
 
@@ -48,6 +48,5 @@ rendered pill, submit it, and confirm the agent receives the documented snapshot
 - Search returns stable, complete, safe resources.
 - Composer selection and prompt submission work in the host.
 - Validator, typecheck, tests, and real-host QA pass.
-
 
 Run existing focused tests when present. This minimal template has no `npm test` alias: typechecking is not a behavior test. Before live installation or reload, read [trust and acceptance gates](../paseo-plugin-authoring/references/quality-gates.md). Require authorization, inspect exact runtime ID with `paseo plugin ls <id>` and `paseo plugin logs <id>`, then exercise the contribution.

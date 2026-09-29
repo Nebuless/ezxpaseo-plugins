@@ -15,12 +15,16 @@ export function resolveGeminiCommand(
     );
   }
   if (!isAbsolute(binary)) {
-    throw new GeminiBinaryConfigurationError("PASEO_GEMINI_BIN must be an absolute path.");
+    throw new GeminiBinaryConfigurationError(
+      "PASEO_GEMINI_BIN must be an absolute path.",
+    );
   }
   try {
     accessSync(binary, constants.X_OK);
     if (!statSync(binary).isFile()) {
-      throw new GeminiBinaryConfigurationError("PASEO_GEMINI_BIN must point to a regular file.");
+      throw new GeminiBinaryConfigurationError(
+        "PASEO_GEMINI_BIN must point to a regular file.",
+      );
     }
   } catch (error) {
     if (error instanceof GeminiBinaryConfigurationError) {

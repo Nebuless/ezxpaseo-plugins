@@ -10,9 +10,9 @@ not a durable workflow engine.
 
 ## Reference index
 
-| Goal | Read | Template |
-| --- | --- | --- |
-| Choose hook and request edits | [Guide](references/lifecycle.md) | [Complete template](assets/template) |
+| Goal                               | Read                              | Template                             |
+| ---------------------------------- | --------------------------------- | ------------------------------------ |
+| Choose hook and request edits      | [Guide](references/lifecycle.md)  | [Complete template](assets/template) |
 | Automate permissions or follow-ups | [Guide](references/automation.md) | [Complete template](assets/template) |
 
 ## Read first

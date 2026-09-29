@@ -6,9 +6,9 @@ compatibility: Current Paseo SDK, Node.js 22+ and TypeScript. Install the full a
 
 # Migrate plugin contracts
 
-| Goal | Read | Template |
-| --- | --- | --- |
-| Old index.ts and suffixed modules | [Entry migration](references/entries.md) | [Migration record](assets/migration-record.md) |
+| Goal                                  | Read                                     | Template                                       |
+| ------------------------------------- | ---------------------------------------- | ---------------------------------------------- |
+| Old index.ts and suffixed modules     | [Entry migration](references/entries.md) | [Migration record](assets/migration-record.md) |
 | Old pill component or removed imports | [API changes](references/api-changes.md) | [Migration record](assets/migration-record.md) |
 
 1. Capture existing behavior and tests. Read current migration guide, installed SDK declarations, entries and package versions.

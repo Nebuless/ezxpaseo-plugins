@@ -8,12 +8,14 @@ export default function contribute(client: PluginClientContext) {
     query: { itemType: "reasoning" },
     transform({ item, phase }) {
       return {
-        items: [{
-          type: "plugin",
-          kind: "reasoning-card",
-          version: 1,
-          data: { text: item.text, phase },
-        }],
+        items: [
+          {
+            type: "plugin",
+            kind: "reasoning-card",
+            version: 1,
+            data: { text: item.text, phase },
+          },
+        ],
       };
     },
   });

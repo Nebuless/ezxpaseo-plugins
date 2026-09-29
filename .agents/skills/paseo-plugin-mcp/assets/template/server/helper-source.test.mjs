@@ -21,7 +21,10 @@ async function withClient(run) {
 test("lists and calls the injected tool over stdio", async () => {
   await withClient(async (client) => {
     const listed = await client.listTools();
-    assert.deepEqual(listed.tools.map(({ name }) => name), ["local_echo"]);
+    assert.deepEqual(
+      listed.tools.map(({ name }) => name),
+      ["local_echo"],
+    );
 
     const called = await client.callTool({
       name: "local_echo",

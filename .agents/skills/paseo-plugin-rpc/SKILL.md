@@ -10,9 +10,9 @@ Paseo SDK.
 
 ## Reference index
 
-| Goal | Read | Template |
-| --- | --- | --- |
-| Define schemas and imports | [Guide](references/contracts.md) | [Complete template](assets/template) |
+| Goal                        | Read                                | Template                             |
+| --------------------------- | ----------------------------------- | ------------------------------------ |
+| Define schemas and imports  | [Guide](references/contracts.md)    | [Complete template](assets/template) |
 | Verify errors and transport | [Guide](references/verification.md) | [Complete template](assets/template) |
 
 ## Read first

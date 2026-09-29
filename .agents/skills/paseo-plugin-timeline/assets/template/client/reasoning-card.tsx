@@ -28,7 +28,9 @@ export function ReasoningCard({
   );
   return (
     <View accessibilityLabel="Agent reasoning" style={styles.card}>
-      <Text style={styles.label}>{item.data.phase === "streaming" ? "Thinking…" : "Reasoning"}</Text>
+      <Text style={styles.label}>
+        {item.data.phase === "streaming" ? "Thinking…" : "Reasoning"}
+      </Text>
       <Text style={styles.text}>{text}</Text>
     </View>
   );

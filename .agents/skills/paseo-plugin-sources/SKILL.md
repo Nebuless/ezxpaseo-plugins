@@ -6,9 +6,9 @@ compatibility: Paseo CLI and access to the intended daemon. Git or npm on daemon
 
 # Choose plugin sources
 
-| Goal | Read | Template |
-| --- | --- | --- |
-| Resolve source syntax and ambiguities | [Resolution](references/resolution.md) | [Source decision](assets/source-decision.md) |
+| Goal                                    | Read                                     | Template                                     |
+| --------------------------------------- | ---------------------------------------- | -------------------------------------------- |
+| Resolve source syntax and ambiguities   | [Resolution](references/resolution.md)   | [Source decision](assets/source-decision.md) |
 | Update, prepare or target remote daemon | [Acquisition](references/acquisition.md) | [Source decision](assets/source-decision.md) |
 
 1. Record daemon host, source kind, directory within source and intended runtime ID. Read resolution before constructing an identifier.
