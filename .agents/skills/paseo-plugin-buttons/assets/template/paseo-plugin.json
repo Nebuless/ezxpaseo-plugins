@@ -1,0 +1,5 @@
+{
+  "id": "button-demo",
+  "description": "Header button and composer pill registered from agent context",
+  "requirements": { "paseo": ">=0.9.2 <0.10.0" }
+}

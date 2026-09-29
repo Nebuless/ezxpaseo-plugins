@@ -1,0 +1,12 @@
+{
+  "name": "paseo-plugin-skill-checks",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test validators.test.mjs templates.test.mjs" },
+  "dependencies": {
+    "esbuild": "^0.25.12",
+    "semver": "^7.7.3",
+    "typescript": "^5.9.3",
+    "yaml": "^2.8.1"
+  }
+}

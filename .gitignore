@@ -1,2 +1,9 @@
 node_modules/
 .DS_Store
+.codesight
+.unlazy
+.pi
+.omo
+.omp
+openspec
+backlog

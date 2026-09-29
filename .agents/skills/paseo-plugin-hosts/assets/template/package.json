@@ -1,0 +1,25 @@
+{
+  "name": "paseo-hosts-template",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "files": [
+    "paseo-plugin.json",
+    "index.client.tsx",
+    "client/",
+    "icon.svg"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test client/cache.test.mjs"
+  },
+  "devDependencies": {
+    "@getpaseo/plugin": "0.9.2",
+    "@types/node": "24.10.1",
+    "@types/react": "~19.2.0",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "typescript": "^5.9.3",
+    "zod": "4.4.3"
+  }
+}
