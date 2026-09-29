@@ -10,17 +10,22 @@ import {
   ANSWER_KIND,
   QUESTION_MODE,
   TIMELINE_STATE,
+  askNativeDialogInputSchema,
   askToolInputSchema,
 } from "../shared/ask-schema.mjs";
 import type {
   AnswerAskRequestInput,
   AskAnswer,
+  AskNativeAnswer,
+  AskNativeQuestion,
+  AskQuestion,
   AskTimelineData,
 } from "../shared/ask-user.ts";
 
 const MAX_BODY_BYTES = 64 * 1024;
 const DEFAULT_TIMEOUT_MS = 60 * 60 * 1000;
 const LOOPBACK_HOST = "127.0.0.1";
+const MAX_TIMER_DELAY_MS = 2_147_483_647;
 
 type TimelinePublisher = (timelineData: AskTimelineData) => Promise<void>;
 type TimerHandle = ReturnType<typeof setTimeout>;
@@ -41,11 +46,17 @@ interface AgentRegistration {
 interface PendingQuestion {
   agentId: string;
   requestId: string;
-  questions: AskTimelineData["questions"];
+  protocol: "legacy" | "omp";
+  questions: AskQuestion[] | AskNativeQuestion[];
   publish: TimelinePublisher;
-  resolve(answers: AskAnswer[]): void;
+  initialPublication: Promise<void>;
+  initialPublicationError?: Error;
+  resolve(
+    result: AskAnswer[] | AskNativeAnswer[] | "chat" | "cancel" | "timeout",
+  ): void;
   reject(error: Error): void;
-  timer: TimerHandle;
+  timer?: TimerHandle;
+  state: "pending" | "answering" | "finished";
 }
 
 const defaultDependencies: BrokerDependencies = {
@@ -116,41 +127,56 @@ export class QuestionBroker {
     this.agentsByToken.set(token, { agentId, publish });
   }
 
-  unregisterAgent(agentId: string): void {
-    const token = this.tokenByAgent.get(agentId);
-    if (token === undefined) {
-      return;
-    }
-    this.tokenByAgent.delete(agentId);
-    this.agentsByToken.delete(token);
-  }
-
-  async answer({
-    agentId,
-    requestId,
-    answers,
-  }: AnswerAskRequestInput): Promise<void> {
+  async answer(input: AnswerAskRequestInput): Promise<void> {
+    const { agentId, requestId } = input;
     const pending = this.pendingById.get(requestId);
     if (pending === undefined || pending.agentId !== agentId) {
       throw new Error(`Pending question was not found: ${requestId}`);
     }
-    this.validateAnswers(pending, answers);
-    await pending.publish({
-      requestId,
-      state: TIMELINE_STATE.ANSWERED,
-      questions: pending.questions,
-      answers,
-    });
-    this.finishPending(pending, answers);
+    if (pending.state !== "pending") {
+      throw new Error(`Pending question is already closing: ${requestId}`);
+    }
+
+    if ("answers" in input) {
+      const nativeInput = "action" in input;
+      if ((pending.protocol === "omp") !== nativeInput) {
+        throw new Error(
+          `Answer protocol does not match pending question: ${requestId}`,
+        );
+      }
+      if (pending.protocol === "omp") {
+        this.validateNativeAnswers(pending, input.answers as AskNativeAnswer[]);
+        await this.publishResult(pending, "submit", input.answers);
+      } else {
+        this.validateAnswers(pending, input.answers as AskAnswer[]);
+        await this.publishResult(pending, undefined, input.answers);
+      }
+      return;
+    }
+
+    if (pending.protocol === "omp") {
+      await this.publishResult(pending, input.action, input.action);
+      return;
+    }
+    if (input.action === "cancel") {
+      await this.cancelPending(pending, "The question was canceled.", true);
+      return;
+    }
+    throw new Error(
+      `Action does not match pending question protocol: ${requestId}`,
+    );
   }
 
   async close(): Promise<void> {
-    for (const pending of this.pendingById.values()) {
-      this.failPending(
-        pending,
-        new QuestionCanceledError("The Paseo ask-user plugin stopped."),
-      );
-    }
+    await Promise.all(
+      [...this.pendingById.values()].map((pending) =>
+        this.cancelPending(
+          pending,
+          "The Paseo ask-user plugin stopped.",
+          false,
+        ),
+      ),
+    );
     this.agentsByToken.clear();
     this.tokenByAgent.clear();
     if (!this.server.listening) {
@@ -169,27 +195,88 @@ export class QuestionBroker {
     });
   }
 
+  unregisterAgent(agentId: string): void {
+    const token = this.tokenByAgent.get(agentId);
+    if (token !== undefined) {
+      this.tokenByAgent.delete(agentId);
+      this.agentsByToken.delete(token);
+    }
+    for (const pending of this.pendingById.values()) {
+      if (pending.agentId === agentId) {
+        void this.cancelPending(
+          pending,
+          "The agent was archived before the question was answered.",
+          false,
+        );
+      }
+    }
+  }
+
   private async handleRequest(
     request: IncomingMessage,
     response: ServerResponse,
   ): Promise<void> {
+    let protocol: "legacy" | "omp";
     try {
-      if (request.method !== "POST" || request.url !== "/ask") {
+      if (
+        request.method !== "POST" ||
+        (request.url !== "/ask" && request.url !== "/dialog")
+      ) {
         this.sendJson(response, 404, { error: "Not found." });
         return;
       }
+      protocol = request.url === "/dialog" ? "omp" : "legacy";
       const registration = this.authenticate(request);
-      const toolInput = askToolInputSchema.parse(
-        await this.readJsonBody(request),
-      );
-      const requestId = this.dependencies.createRequestId();
-      const answers = await this.waitForAnswer(
+      const body = await this.readJsonBody(request);
+      if (protocol === "legacy") {
+        const toolInput = askToolInputSchema.parse(body);
+        const result = await this.waitForAnswer(
+          registration,
+          this.dependencies.createRequestId(),
+          toolInput.questions,
+          protocol,
+          undefined,
+          request,
+          response,
+        );
+        this.sendJson(response, 200, {
+          requestId: result.requestId,
+          answers: result.answers as AskAnswer[],
+        });
+        return;
+      }
+      const dialogInput = askNativeDialogInputSchema.parse(body);
+      const result = await this.waitForAnswer(
         registration,
-        requestId,
-        toolInput.questions,
+        this.dependencies.createRequestId(),
+        dialogInput.questions,
+        protocol,
+        dialogInput.timeoutMs,
         request,
+        response,
       );
-      this.sendJson(response, 200, { requestId, answers });
+      if (result.action === "timeout") {
+        this.sendJson(response, 200, {
+          requestId: result.requestId,
+          action: "timeout",
+        });
+      } else if (result.action === "cancel") {
+        this.sendJson(response, 200, {
+          requestId: result.requestId,
+          action: "cancel",
+        });
+      } else if (result.action === "chat") {
+        this.sendJson(response, 200, {
+          requestId: result.requestId,
+          action: "chat",
+        });
+      } else {
+        this.sendJson(response, 200, {
+          requestId: result.requestId,
+          action: "submit",
+          answers: result.answers as AskNativeAnswer[],
+        });
+      }
     } catch (error) {
       if (response.headersSent || response.destroyed) {
         return;
@@ -243,72 +330,244 @@ export class QuestionBroker {
   private async waitForAnswer(
     registration: AgentRegistration,
     requestId: string,
-    questions: AskTimelineData["questions"],
+    questions: AskQuestion[] | AskNativeQuestion[],
+    protocol: "legacy" | "omp",
+    timeoutMs: number | undefined,
     request: IncomingMessage,
-  ): Promise<AskAnswer[]> {
-    const answerPromise = new Promise<AskAnswer[]>((resolve, reject) => {
-      const timer = this.dependencies.scheduleTimeout(() => {
-        const pending = this.pendingById.get(requestId);
-        if (pending === undefined) {
-          return;
-        }
-        void this.publishTerminalState(
-          pending,
-          TIMELINE_STATE.TIMED_OUT,
-          "The question expired before it was answered.",
-        );
-        this.failPending(
-          pending,
-          new QuestionTimedOutError("The question timed out."),
-        );
-      }, this.dependencies.timeoutMs);
-      this.pendingById.set(requestId, {
+    response: ServerResponse,
+  ): Promise<{
+    requestId: string;
+    answers?: AskAnswer[] | AskNativeAnswer[];
+    action?: "chat" | "cancel" | "timeout";
+  }> {
+    let disconnected = false;
+    let pendingPublished = false;
+    let completeInitialPublication!: () => void;
+    const initialPublication = new Promise<void>((resolve) => {
+      completeInitialPublication = resolve;
+    });
+    const answerPromise = new Promise<{
+      requestId: string;
+      answers?: AskAnswer[] | AskNativeAnswer[];
+      action?: "chat" | "cancel" | "timeout";
+    }>((resolve, reject) => {
+      const pending: PendingQuestion = {
         agentId: registration.agentId,
         requestId,
+        protocol,
         questions,
         publish: registration.publish,
-        resolve,
+        initialPublication,
+        resolve: (result) => {
+          if (Array.isArray(result)) {
+            resolve({ requestId, answers: result });
+          } else {
+            resolve({ requestId, action: result });
+          }
+        },
         reject,
-        timer,
-      });
+        state: "pending",
+      };
+      this.pendingById.set(requestId, pending);
     });
-    request.once("aborted", () => {
+    void answerPromise.catch(() => {});
+    const cancelRequest = () => {
+      disconnected = true;
+      if (!pendingPublished) return;
       const pending = this.pendingById.get(requestId);
-      if (pending === undefined) {
+      if (pending === undefined || pending.state !== "pending") {
         return;
       }
-      void this.publishTerminalState(
+      void this.cancelPending(
         pending,
-        TIMELINE_STATE.CANCELED,
         "The agent stopped waiting for an answer.",
+        false,
       );
+    };
+    request.once("aborted", cancelRequest);
+    response.once("close", () => {
+      if (!response.writableFinished) {
+        cancelRequest();
+      }
+    });
+    if (response.destroyed) cancelRequest();
+    const pendingTimeline: AskTimelineData =
+      protocol === "omp"
+        ? {
+            protocol: "omp",
+            requestId,
+            state: TIMELINE_STATE.PENDING,
+            questions: questions as AskNativeQuestion[],
+          }
+        : {
+            requestId,
+            state: TIMELINE_STATE.PENDING,
+            questions: questions as AskQuestion[],
+          };
+    try {
+      await registration.publish(pendingTimeline);
+      completeInitialPublication();
+      pendingPublished = true;
+      if (disconnected) cancelRequest();
+      else {
+        const pending = this.pendingById.get(requestId);
+        if (pending !== undefined && !(protocol === "omp" && timeoutMs === 0)) {
+          this.scheduleDeadline(
+            pending,
+            timeoutMs ?? this.dependencies.timeoutMs,
+          );
+        }
+      }
+    } catch (error) {
+      const pending = this.pendingById.get(requestId);
+      if (pending !== undefined) {
+        const publishError =
+          error instanceof Error ? error : new Error(String(error));
+        pending.initialPublicationError = publishError;
+        completeInitialPublication();
+        this.failPending(pending, publishError);
+      } else {
+        completeInitialPublication();
+      }
+      throw error;
+    }
+    return answerPromise;
+  }
+
+  private async publishResult(
+    pending: PendingQuestion,
+    action: "submit" | "chat" | "cancel" | undefined,
+    result: AskAnswer[] | AskNativeAnswer[] | "chat" | "cancel",
+  ): Promise<void> {
+    await pending.initialPublication;
+    if (pending.initialPublicationError !== undefined) {
+      throw pending.initialPublicationError;
+    }
+    if (pending.state !== "pending") {
+      throw new Error(
+        `Pending question is already closing: ${pending.requestId}`,
+      );
+    }
+    pending.state = "answering";
+    if (pending.timer !== undefined) {
+      this.dependencies.cancelTimeout(pending.timer);
+    }
+    const canceled = action === "cancel";
+    try {
+      await pending.publish({
+        requestId: pending.requestId,
+        ...(pending.protocol === "omp" ? { protocol: "omp" as const } : {}),
+        state: canceled ? TIMELINE_STATE.CANCELED : TIMELINE_STATE.ANSWERED,
+        questions: pending.questions,
+        ...(action === undefined ? {} : { action }),
+        ...(Array.isArray(result) ? { answers: result } : {}),
+      } as AskTimelineData);
+      this.finishPending(pending, result);
+    } catch (error) {
+      this.failPending(
+        pending,
+        error instanceof Error ? error : new Error(String(error)),
+      );
+      throw error;
+    }
+  }
+
+  private scheduleDeadline(pending: PendingQuestion, delayMs: number): void {
+    const startedAt = Date.now();
+    const scheduleNext = () => {
+      if (pending.state !== "pending") return;
+      const remaining = delayMs - (Date.now() - startedAt);
+      if (remaining <= 0) {
+        void this.expirePending(pending);
+        return;
+      }
+      pending.timer = this.dependencies.scheduleTimeout(
+        scheduleNext,
+        Math.min(remaining, MAX_TIMER_DELAY_MS),
+      );
+    };
+    scheduleNext();
+  }
+
+  private async expirePending(pending: PendingQuestion): Promise<void> {
+    if (pending.state !== "pending") return;
+    if (pending.protocol === "omp") {
+      await this.finishTerminal(
+        pending,
+        TIMELINE_STATE.TIMED_OUT,
+        "timeout",
+        "The question timed out.",
+      );
+      return;
+    }
+    pending.state = "answering";
+    try {
+      await pending.publish({
+        requestId: pending.requestId,
+        state: TIMELINE_STATE.TIMED_OUT,
+        questions: pending.questions,
+        message: "The question expired before it was answered.",
+      });
+    } catch (error) {
+      console.error("Failed to publish ask-user timed_out state.", error);
+    }
+    this.failPending(
+      pending,
+      new QuestionTimedOutError("The question timed out."),
+    );
+  }
+
+  private async cancelPending(
+    pending: PendingQuestion,
+    message: string,
+    fromRpc: boolean,
+  ): Promise<void> {
+    if (pending.protocol === "omp" && fromRpc) {
+      await this.publishResult(pending, "cancel", "cancel");
+      return;
+    }
+    await this.finishTerminal(
+      pending,
+      TIMELINE_STATE.CANCELED,
+      "cancel",
+      message,
+    );
+  }
+
+  private async finishTerminal(
+    pending: PendingQuestion,
+    state: typeof TIMELINE_STATE.TIMED_OUT | typeof TIMELINE_STATE.CANCELED,
+    action: "timeout" | "cancel",
+    message: string,
+  ): Promise<void> {
+    await pending.initialPublication;
+    if (pending.initialPublicationError !== undefined) return;
+    if (pending.state !== "pending") return;
+    pending.state = "answering";
+    try {
+      await pending.publish({
+        requestId: pending.requestId,
+        ...(pending.protocol === "omp" ? { protocol: "omp" as const } : {}),
+        state,
+        questions: pending.questions,
+        ...(pending.protocol === "omp" ? { action } : {}),
+        ...(pending.protocol === "legacy" ? { message } : {}),
+      } as AskTimelineData);
+    } catch (error) {
+      console.error(`Failed to publish ask-user ${state} state.`, error);
+    }
+    if (pending.protocol === "omp") {
+      this.finishPending(pending, action);
+    } else if (state === TIMELINE_STATE.TIMED_OUT) {
+      this.failPending(
+        pending,
+        new QuestionTimedOutError("The question timed out."),
+      );
+    } else {
       this.failPending(
         pending,
         new QuestionCanceledError("The request was canceled."),
       );
-    });
-    await registration.publish({
-      requestId,
-      state: TIMELINE_STATE.PENDING,
-      questions,
-    });
-    return answerPromise;
-  }
-
-  private async publishTerminalState(
-    pending: PendingQuestion,
-    state: typeof TIMELINE_STATE.TIMED_OUT | typeof TIMELINE_STATE.CANCELED,
-    message: string,
-  ): Promise<void> {
-    try {
-      await pending.publish({
-        requestId: pending.requestId,
-        state,
-        questions: pending.questions,
-        message,
-      });
-    } catch (error) {
-      console.error(`Failed to publish ask-user ${state} state.`, error);
     }
   }
 
@@ -320,7 +579,10 @@ export class QuestionBroker {
       throw new Error("Every question requires exactly one answer.");
     }
     const questionsById = new Map(
-      pending.questions.map((question) => [question.id, question]),
+      (pending.questions as AskQuestion[]).map((question) => [
+        question.id,
+        question,
+      ]),
     );
     const answeredIds = new Set<string>();
     for (const answer of answers) {
@@ -353,14 +615,70 @@ export class QuestionBroker {
     }
   }
 
-  private finishPending(pending: PendingQuestion, answers: AskAnswer[]): void {
-    this.dependencies.cancelTimeout(pending.timer);
+  private validateNativeAnswers(
+    pending: PendingQuestion,
+    answers: AskNativeAnswer[],
+  ): void {
+    const questions = pending.questions as AskNativeQuestion[];
+    if (answers.length !== questions.length) {
+      throw new Error("Every question requires exactly one answer.");
+    }
+    const questionsById = new Map(
+      questions.map((question) => [question.id, question]),
+    );
+    const answeredIds = new Set<string>();
+    for (const answer of answers) {
+      const question = questionsById.get(answer.questionId);
+      if (question === undefined || answeredIds.has(answer.questionId)) {
+        throw new Error(
+          `Answer does not match a pending question: ${answer.questionId}`,
+        );
+      }
+      answeredIds.add(answer.questionId);
+      if (answer.kind !== "selection") continue;
+      if (
+        question.selectionMode === QUESTION_MODE.SINGLE &&
+        answer.values.length !== 1
+      ) {
+        throw new Error(
+          `Question requires one selected value: ${answer.questionId}`,
+        );
+      }
+      const optionValues = new Set(
+        question.options.map((option) => option.value),
+      );
+      if (new Set(answer.values).size !== answer.values.length) {
+        throw new Error(
+          `Answer contains a duplicate option: ${answer.questionId}`,
+        );
+      }
+      if (answer.values.some((value) => !optionValues.has(value))) {
+        throw new Error(
+          `Answer contains an unknown option: ${answer.questionId}`,
+        );
+      }
+    }
+  }
+
+  private finishPending(
+    pending: PendingQuestion,
+    result: AskAnswer[] | AskNativeAnswer[] | "chat" | "cancel" | "timeout",
+  ): void {
+    if (pending.state === "finished") return;
+    if (pending.timer !== undefined) {
+      this.dependencies.cancelTimeout(pending.timer);
+    }
+    pending.state = "finished";
     this.pendingById.delete(pending.requestId);
-    pending.resolve(answers);
+    pending.resolve(result);
   }
 
   private failPending(pending: PendingQuestion, error: Error): void {
-    this.dependencies.cancelTimeout(pending.timer);
+    if (pending.state === "finished") return;
+    if (pending.timer !== undefined) {
+      this.dependencies.cancelTimeout(pending.timer);
+    }
+    pending.state = "finished";
     this.pendingById.delete(pending.requestId);
     pending.reject(error);
   }

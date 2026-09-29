@@ -113,6 +113,59 @@ export const askToolInputSchema = z
     }
   });
 
+export const askNativeOptionSchema = z.object({
+  value: z.string(),
+  label: z.string(),
+  description: z.string().optional(),
+  preview: z.string().optional(),
+});
+
+export const askNativeQuestionSchema = z
+  .object({
+    id: z.string(),
+    prompt: z.string(),
+    label: z.string().optional(),
+    options: z.array(askNativeOptionSchema),
+    selectionMode: z.enum([QUESTION_MODE.SINGLE, QUESTION_MODE.MULTIPLE]),
+    recommendationIndex: z.number().int().nonnegative().optional(),
+  })
+  .superRefine((question, context) => {
+    const optionValues = question.options.map((option) => option.value);
+    if (new Set(optionValues).size !== optionValues.length) {
+      context.addIssue({
+        code: "custom",
+        message: "Option values must be unique.",
+      });
+    }
+    if (
+      question.recommendationIndex !== undefined &&
+      question.recommendationIndex >= question.options.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "recommendationIndex must reference an option.",
+      });
+    }
+  });
+
+export const askNativeQuestionsSchema = z
+  .array(askNativeQuestionSchema)
+  .min(1)
+  .superRefine((questions, context) => {
+    const questionIds = questions.map((question) => question.id);
+    if (new Set(questionIds).size !== questionIds.length) {
+      context.addIssue({
+        code: "custom",
+        message: "Question ids must be unique.",
+      });
+    }
+  });
+
+export const askNativeDialogInputSchema = z.object({
+  questions: askNativeQuestionsSchema,
+  timeoutMs: z.number().int().nonnegative().optional(),
+});
+
 export const askAnswerSchema = z.discriminatedUnion("kind", [
   z.object({
     questionId: z.string().min(1),
@@ -132,30 +185,100 @@ export const askAnswerSchema = z.discriminatedUnion("kind", [
 
 export const askAnswersSchema = z.array(askAnswerSchema).min(1).max(4);
 
-export const answerAskRequestInputSchema = z.object({
+export const askNativeAnswerSchema = z.discriminatedUnion("kind", [
+  z.object({
+    questionId: z.string(),
+    kind: z.literal("selection"),
+    values: z.array(z.string()),
+    note: z.string().optional(),
+  }),
+  z.object({
+    questionId: z.string(),
+    kind: z.literal("custom"),
+    text: z.string().refine((text) => text.trim().length > 0),
+    note: z.string().optional(),
+  }),
+]);
+
+export const askNativeAnswersSchema = z.array(askNativeAnswerSchema).min(1);
+
+const legacyAnswerAskRequestInputSchema = z.object({
   agentId: z.string().min(1),
   requestId: z.string().min(1),
   answers: askAnswersSchema,
 });
 
+const legacyCancelAskRequestInputSchema = z.object({
+  agentId: z.string().min(1),
+  requestId: z.string().min(1),
+  action: z.literal("cancel"),
+});
+
+const nativeAnswerAskRequestInputSchema = z.discriminatedUnion("action", [
+  z.object({
+    agentId: z.string().min(1),
+    requestId: z.string().min(1),
+    action: z.literal("submit"),
+    answers: askNativeAnswersSchema,
+  }),
+  z.object({
+    agentId: z.string().min(1),
+    requestId: z.string().min(1),
+    action: z.enum(["chat", "cancel"]),
+  }),
+]);
+
+export const answerAskRequestInputSchema = z.union([
+  nativeAnswerAskRequestInputSchema,
+  legacyAnswerAskRequestInputSchema,
+  legacyCancelAskRequestInputSchema,
+]);
+
 export const answerAskRequestOutputSchema = z.object({
   accepted: z.literal(true),
 });
 
-export const askTimelineDataSchema = z.object({
+const askTimelineStateSchema = z.enum([
+  TIMELINE_STATE.PENDING,
+  TIMELINE_STATE.ANSWERED,
+  TIMELINE_STATE.TIMED_OUT,
+  TIMELINE_STATE.CANCELED,
+]);
+
+const legacyAskTimelineDataSchema = z.object({
   requestId: z.string().min(1),
-  state: z.enum([
-    TIMELINE_STATE.PENDING,
-    TIMELINE_STATE.ANSWERED,
-    TIMELINE_STATE.TIMED_OUT,
-    TIMELINE_STATE.CANCELED,
-  ]),
+  state: askTimelineStateSchema,
   questions: z.array(askQuestionSchema).min(1).max(4),
   answers: askAnswersSchema.optional(),
   message: z.string().min(1).optional(),
 });
 
+export const askTimelineDataSchema = z.union([
+  z.object({
+    protocol: z.literal("omp"),
+    requestId: z.string().min(1),
+    state: askTimelineStateSchema,
+    questions: askNativeQuestionsSchema,
+    action: z.enum(["submit", "chat", "cancel", "timeout"]).optional(),
+    answers: askNativeAnswersSchema.optional(),
+    message: z.string().min(1).optional(),
+  }),
+  legacyAskTimelineDataSchema,
+]);
+
 export const brokerAskResponseSchema = z.object({
   requestId: z.string().min(1),
   answers: askAnswersSchema,
 });
+
+export const brokerDialogResponseSchema = z.discriminatedUnion("action", [
+  z.object({
+    requestId: z.string().min(1),
+    action: z.literal("submit"),
+    answers: askNativeAnswersSchema,
+  }),
+  z.object({
+    requestId: z.string().min(1),
+    action: z.enum(["chat", "cancel", "timeout"]),
+  }),
+]);
