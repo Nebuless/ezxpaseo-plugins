@@ -1,0 +1,7 @@
+{
+  "id": "paseo-ask-user",
+  "description": "Adds a Paseo-native ask-user MCP tool with structured questions and timeline answers.",
+  "requirements": {
+    "paseo": ">=0.9.2"
+  }
+}
