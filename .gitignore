@@ -7,3 +7,11 @@ node_modules/
 .omp
 openspec
 backlog
+.worktrees/
+.qlty/configs/
+.qlty/logs
+.qlty/out
+.qlty/plugin_cachedir
+.qlty/results
+.qlty/sources/
+!.omo/init-deep.json

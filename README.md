@@ -19,4 +19,7 @@ Run formatting checks, type checks, and tests across every plugin:
 
 ```bash
 npm run check
+npm run quality
 ```
+
+Repository workflow: [agent rules](AGENTS.md), [Worktrunk and task dispatch](docs/repository-workflow.md), and [versioning and changelog](docs/releasing.md). Write a plan before dispatch, develop each change in its own Worktrunk worktree, and keep `main` clean.

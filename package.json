@@ -7,9 +7,19 @@
   ],
   "scripts": {
     "check": "npm run format:check && npm run typecheck && npm test",
+    "quality": "qlty check --all --no-fix --no-progress",
+    "commitlint": "commitlint",
+    "commits:check": "commitlint --from main --to HEAD",
+    "changelog": "conventional-changelog -p conventionalcommits -r 0 -i CHANGELOG.md -s",
     "format": "npm run format --workspaces --if-present",
     "format:check": "npm run format:check --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3",
+    "conventional-changelog-cli": "5.0.0",
+    "conventional-changelog-conventionalcommits": "9.3.1"
   }
 }

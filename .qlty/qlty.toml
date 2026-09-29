@@ -1,0 +1,18 @@
+config_version = "0"
+
+exclude_patterns = [
+  "**/node_modules/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/.worktrees/**",
+  "package-lock.json",
+]
+
+test_patterns = ["**/*.test.*", "**/*.spec.*"]
+
+[[source]]
+name = "default"
+default = true
+
+[[plugin]]
+name = "prettier"

@@ -1,0 +1,10 @@
+# Worktrunk gates only. Worktree location and agent choice remain per-user settings.
+[pre-merge]
+checks = "npm run check && npm run quality && npm run commits:check"
+
+[commit.generation]
+template-append = """
+- Use Conventional Commits: type(scope): imperative summary.
+- Use ! or a BREAKING CHANGE: footer only when compatibility changes.
+- Do not include unrelated work from another worktree.
+"""
