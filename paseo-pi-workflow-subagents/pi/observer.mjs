@@ -2,6 +2,7 @@ import {
   AGENT_SOURCE,
   AGENT_STATE,
   MAX_AGENT_ATTEMPT,
+  MAX_AGENT_COUNT,
   MAX_LABEL_LENGTH,
   MAX_ROLE_LENGTH,
   MAX_STATUS_BUFFER_LENGTH,
@@ -21,6 +22,13 @@ import {
 const WORKFLOW_EVENT = "workflow:agent-state-changed";
 const HEARTBEAT_INTERVAL_MS = 10_000;
 const BRIDGE_REQUEST_TIMEOUT_MS = 2_500;
+/** @type {Set<string>} */
+const TERMINAL_AGENT_STATES = new Set([
+  AGENT_STATE.COMPLETED,
+  AGENT_STATE.FAILED,
+  AGENT_STATE.CANCELLED,
+  AGENT_STATE.STOPPED,
+]);
 /** @typedef {import("../shared/subagents.js").WorkflowAgentStatus} WorkflowAgentStatus */
 /** @typedef {import("../shared/subagents.js").StandaloneAgentStatus} StandaloneAgentStatus */
 /** @typedef {import("../shared/subagents.js").UnsupportedCode} UnsupportedCode */
@@ -260,33 +268,35 @@ function nodeFetch(endpoint, init) {
  * @param {string} endpoint
  * @param {string} token
  * @param {PiWorkflowFetch} fetchImpl
+ * @param {() => void} onOverflow
  */
-function createBridgeSender(endpoint, token, fetchImpl) {
-  let queue = Promise.resolve();
-  let pending = 0;
+function createBridgeSender(endpoint, token, fetchImpl, onOverflow) {
   let accepting = true;
   let aborted = false;
+  let running = false;
+  let inFlight = false;
+  let drainPromise = Promise.resolve();
+  /** @type {Array<{message: import("../shared/subagents.js").CompanionMessage, identity?: string, terminal: boolean}>} */
+  const queue = [];
+  const terminalIdentities = new Set();
   /** @type {Set<AbortController>} */
   const activeRequests = new Set();
 
   const abortRequests = () => {
     aborted = true;
+    queue.length = 0;
     for (const controller of activeRequests) controller.abort();
     activeRequests.clear();
   };
 
-  /** @param {unknown} message */
-  const send = (message) => {
-    if (!accepting || aborted || pending >= MAX_STATUS_BUFFER_LENGTH) {
-      return Promise.resolve();
-    }
-    const parsed = companionMessageSchema.safeParse(message);
-    if (!parsed.success) return Promise.resolve();
-
-    pending += 1;
-    const task = queue
-      .then(async () => {
-        if (aborted) return;
+  const startDrain = () => {
+    if (running || queue.length === 0 || aborted) return;
+    running = true;
+    drainPromise = (async () => {
+      while (queue.length > 0 && !aborted) {
+        const entry = queue.shift();
+        if (!entry) continue;
+        inFlight = true;
         const controller = new AbortController();
         activeRequests.add(controller);
         const timeout = setNodeTimeout(
@@ -301,7 +311,7 @@ function createBridgeSender(endpoint, token, fetchImpl) {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(parsed.data),
+            body: JSON.stringify(entry.message),
             redirect: "error",
             signal: controller.signal,
           };
@@ -311,23 +321,101 @@ function createBridgeSender(endpoint, token, fetchImpl) {
         } finally {
           clearNodeTimeout(timeout);
           activeRequests.delete(controller);
+          inFlight = false;
         }
-      })
+      }
+    })()
       .catch(() => undefined)
       .finally(() => {
-        pending -= 1;
+        running = false;
+        if (queue.length > 0 && !aborted) startDrain();
       });
-    queue = task;
-    return task;
+  };
+
+  const flush = async () => {
+    while (running || queue.length > 0) await drainPromise;
+  };
+
+  /** @param {unknown} message */
+  const send = (message) => {
+    if (!accepting || aborted) return Promise.resolve();
+    const parsed = companionMessageSchema.safeParse(message);
+    if (!parsed.success) return Promise.resolve();
+
+    const status =
+      parsed.data.type === "update" ? parsed.data.status : undefined;
+    const identity = status
+      ? JSON.stringify(
+          status.source === "workflow"
+            ? [status.piSessionId, status.source, status.runId, status.agentId]
+            : [status.piSessionId, status.source, status.agentId],
+        )
+      : parsed.data.type === "heartbeat"
+        ? JSON.stringify([parsed.data.piSessionId, "heartbeat"])
+        : undefined;
+    const terminal = Boolean(status && TERMINAL_AGENT_STATES.has(status.state));
+    if (identity && terminalIdentities.has(identity) && !terminal) {
+      return Promise.resolve();
+    }
+    if (
+      terminal &&
+      identity &&
+      !terminalIdentities.has(identity) &&
+      terminalIdentities.size >= MAX_AGENT_COUNT
+    ) {
+      onOverflow();
+      return Promise.resolve();
+    }
+
+    const existingIndex = identity
+      ? queue.findIndex((entry) => entry.identity === identity)
+      : undefined;
+    if (existingIndex !== undefined && existingIndex !== -1) {
+      const [existing] = queue.splice(existingIndex, 1);
+      if (existing && (!existing.terminal || terminal)) {
+        if (terminal && identity) terminalIdentities.add(identity);
+        queue.push({ message: parsed.data, identity, terminal });
+      } else if (existing) {
+        queue.splice(existingIndex, 0, existing);
+      }
+      startDrain();
+      return flush();
+    }
+
+    const limit =
+      parsed.data.type === "unsupported"
+        ? MAX_STATUS_BUFFER_LENGTH
+        : MAX_STATUS_BUFFER_LENGTH - 1;
+    let overflowed = false;
+    if (queue.length + Number(inFlight) >= limit) {
+      const replaceIndex =
+        identity && status
+          ? queue.findIndex(
+              (entry) => entry.identity !== undefined && !entry.terminal,
+            )
+          : -1;
+      if (replaceIndex === -1) {
+        if (parsed.data.type === "update") onOverflow();
+        return Promise.resolve();
+      }
+      queue.splice(replaceIndex, 1);
+      overflowed = true;
+    }
+    if (terminal && identity) terminalIdentities.add(identity);
+
+    queue.push({ message: parsed.data, identity, terminal });
+    startDrain();
+    if (overflowed) onOverflow();
+    return flush();
   };
 
   return {
     send,
-    flush: () => queue,
+    flush,
     close: ({ drain = false } = {}) => {
       accepting = false;
       if (drain) {
-        void queue.finally(abortRequests);
+        void flush().finally(abortRequests);
       } else {
         abortRequests();
       }
@@ -422,11 +510,21 @@ export function startPiWorkflowSubagentObserver(options) {
   const now = options.now ?? Date.now;
   const setIntervalImpl = options.setIntervalImpl ?? setInterval;
   const clearIntervalImpl = options.clearIntervalImpl ?? clearInterval;
-  const sender = createBridgeSender(endpoint, options.bridgeToken, fetchImpl);
+  let overflowReported = false;
+  let disposed = false;
+  const sender = createBridgeSender(
+    endpoint,
+    options.bridgeToken,
+    fetchImpl,
+    () => {
+      if (overflowReported || disposed) return;
+      overflowReported = true;
+      failUnsupported(UNSUPPORTED_CODE.COMPANION_ERROR);
+    },
+  );
   /** @type {Map<Record<string, unknown>, {wrapper: RegistryObserver, release: () => void}>} */
   const localBindings = new Map();
   let active = true;
-  let disposed = false;
   /** @type {PiWorkflowIntervalHandle | undefined} */
   let timer;
   /** @type {(() => void) | undefined} */

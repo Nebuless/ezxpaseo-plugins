@@ -104,6 +104,7 @@ async function reportUnsupportedWorkflowVersion(
   bridgeUrl: string,
   bridgeToken: string,
   piSessionId: string,
+  lifecycleSignal: AbortSignal,
 ) {
   const endpoint = statusEndpoint(bridgeUrl);
   const fetchImpl = globalThis.fetch;
@@ -121,8 +122,13 @@ async function reportUnsupportedWorkflowVersion(
     code: UNSUPPORTED_CODE.UNSUPPORTED_WORKFLOW_VERSION,
   });
   if (!parsed.success) return;
+  if (lifecycleSignal.aborted) return;
 
   const controller = new AbortController();
+  const abortForLifecycle = () => controller.abort();
+  if (lifecycleSignal.aborted) return;
+  lifecycleSignal.addEventListener("abort", abortForLifecycle, { once: true });
+  if (lifecycleSignal.aborted) controller.abort();
   const timeout = setTimeout(
     () => controller.abort(),
     BRIDGE_REQUEST_TIMEOUT_MS,
@@ -144,15 +150,28 @@ async function reportUnsupportedWorkflowVersion(
     // A monitoring failure never affects the Pi session.
   } finally {
     clearTimeout(timeout);
+    lifecycleSignal.removeEventListener("abort", abortForLifecycle);
   }
 }
 
 export default function registerPiWorkflowSubagentCompanion(pi: ExtensionAPI) {
   let stopObserver: (() => void) | undefined;
+  let sessionLifecycle: AbortController | undefined;
+  let sessionGeneration = 0;
 
-  pi.on("session_start", async (_event, context) => {
+  const invalidateSession = () => {
+    sessionGeneration += 1;
+    sessionLifecycle?.abort();
+    sessionLifecycle = undefined;
     stopObserver?.();
     stopObserver = undefined;
+    return sessionGeneration;
+  };
+
+  pi.on("session_start", async (_event, context) => {
+    const generation = invalidateSession();
+    const lifecycle = new AbortController();
+    sessionLifecycle = lifecycle;
 
     const bridgeUrl = process.env[PI_WORKFLOW_SUBAGENTS_BRIDGE_URL_ENV];
     const bridgeToken = process.env[PI_WORKFLOW_SUBAGENTS_BRIDGE_TOKEN_ENV];
@@ -165,15 +184,20 @@ export default function registerPiWorkflowSubagentCompanion(pi: ExtensionAPI) {
       return;
     }
 
-    if (!(await isSupportedWorkflowRuntime(pi))) {
+    const supported = await isSupportedWorkflowRuntime(pi);
+    if (generation !== sessionGeneration || lifecycle.signal.aborted) return;
+
+    if (!supported) {
       await reportUnsupportedWorkflowVersion(
         bridgeUrl,
         bridgeToken,
         piSessionId,
+        lifecycle.signal,
       );
       return;
     }
 
+    if (generation !== sessionGeneration || lifecycle.signal.aborted) return;
     const observer = startPiWorkflowSubagentObserver({
       pi,
       piSessionId,
@@ -185,7 +209,6 @@ export default function registerPiWorkflowSubagentCompanion(pi: ExtensionAPI) {
   });
 
   pi.on("session_shutdown", () => {
-    stopObserver?.();
-    stopObserver = undefined;
+    invalidateSession();
   });
 }

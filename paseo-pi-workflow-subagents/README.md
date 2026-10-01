@@ -2,6 +2,8 @@
 
 A read-only panel for Pi sessions launched by Paseo. It shows live workflow-launched and standalone `pi-extensible-workflows` sub-agents under their parent agent, without their prompts, transcripts, raw activity text, tool arguments/results, paths, or controls. The panel reports whether monitoring is connected, reconnecting, stale, unavailable, or incompatible. It cannot reconstruct events that occurred before the companion connected or while the bridge was down.
 
+The companion bounds queued bridge updates. Pending updates coalesce per source and agent identity (including workflow run ID); terminal updates displace pending nonterminal progress when needed and cannot be replaced by later stale progress. If queue pressure still drops an update, monitoring reports a companion error rather than silently presenting a live feed.
+
 ## Compatibility
 
 - Paseo daemon and client: 0.9.2 or newer, with the plugin panel APIs used here.

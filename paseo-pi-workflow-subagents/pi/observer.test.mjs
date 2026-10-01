@@ -464,6 +464,122 @@ test("keeps upstream return values and errors, never uses the setter slot, and t
   assert.notEqual(originalMethod, foreignReplacement);
 });
 
+test("preserves terminal identity and FIFO survivors when a blocked sender reaches its cap", async () => {
+  const registry = {
+    /** @param {unknown} _status @param {unknown} _request */
+    observeSubagentStatus(_status, _request) {},
+    setSubagentStatusObserver() {
+      assert.fail("the companion must not replace the upstream observer");
+    },
+  };
+  const originalObserver = registry.observeSubagentStatus;
+  /** @type {(() => void) | undefined} */
+  let releaseBlockedFetch;
+  let blockedFetchStarted = false;
+  /** @type {HarnessMessage[]} */
+  const sent = [];
+  const harness = createHarness({
+    registryLoader: () => registry,
+    fetchImpl: async (_url, options) => {
+      if (sent.length === 0) {
+        blockedFetchStarted = true;
+        /** @type {Promise<void>} */
+        const blocked = new Promise((resolve) => {
+          releaseBlockedFetch = () => resolve();
+        });
+        await blocked;
+      }
+      sent.push(companionMessageSchema.parse(JSON.parse(options.body)));
+      return { ok: true, status: 200 };
+    },
+  });
+  while (!blockedFetchStarted) {
+    await new Promise((resolve) => setImmediate(resolve));
+  }
+
+  const queued = Array.from({ length: 252 }, (_, index) => ({
+    sessionId: PI_SESSION_ID,
+    runId: `run-${index}`,
+    agentId: `agent-${index % 3}`,
+    state: "running",
+    timestamp: FIXED_TIME + index,
+  }));
+  for (const status of queued) harness.emitWorkflow(status);
+  harness.emitWorkflow({
+    ...queued[1],
+    state: "paused",
+    timestamp: FIXED_TIME + 300,
+  });
+  registry.observeSubagentStatus(
+    {
+      id: "agent-1",
+      sessionId: PI_SESSION_ID,
+      state: "completed",
+      finishedAt: FIXED_TIME + 252,
+    },
+    { label: "Standalone worker" },
+  );
+  harness.emitWorkflow({
+    sessionId: PI_SESSION_ID,
+    runId: "terminal-run",
+    agentId: "terminal-agent",
+    state: "completed",
+    timestamp: FIXED_TIME + 253,
+  });
+  harness.emitWorkflow({
+    sessionId: PI_SESSION_ID,
+    runId: "terminal-run",
+    agentId: "terminal-agent",
+    state: "running",
+    timestamp: FIXED_TIME + 254,
+  });
+  harness.emitWorkflow({
+    sessionId: PI_SESSION_ID,
+    runId: "overflow-run",
+    agentId: "overflow-agent",
+    state: "running",
+    timestamp: FIXED_TIME + 255,
+  });
+
+  assert.equal(harness.runtime.active, false);
+  assert.equal(harness.hasWorkflowListener, false);
+  assert.equal(harness.intervalCleared, true);
+  releaseBlockedFetch?.();
+  await harness.runtime.flush();
+
+  const updates = sent.filter((message) => message.type === "update");
+  assert.equal(updates.length, 254);
+  assert.deepEqual(
+    updates.map(({ status }) => [
+      status.source,
+      status.runId,
+      status.agentId,
+      status.state,
+    ]),
+    [
+      ...queued
+        .slice(2)
+        .map((status) => [
+          "workflow",
+          status.runId,
+          status.agentId,
+          AGENT_STATE.RUNNING,
+        ]),
+      ["workflow", queued[1]?.runId, queued[1]?.agentId, AGENT_STATE.PAUSED],
+      ["standalone", undefined, "agent-1", AGENT_STATE.COMPLETED],
+      ["workflow", "terminal-run", "terminal-agent", AGENT_STATE.COMPLETED],
+      ["workflow", "overflow-run", "overflow-agent", AGENT_STATE.RUNNING],
+    ],
+  );
+  assert.equal(sent[0]?.type, "hello");
+  assert.equal(sent.at(-1)?.type, "unsupported");
+  assert.equal(
+    sent.at(-1)?.type === "unsupported" && sent.at(-1)?.code,
+    UNSUPPORTED_CODE.COMPANION_ERROR,
+  );
+  assert.equal(registry.observeSubagentStatus, originalObserver);
+});
+
 test("reports unsupported observer or event seams and leaves unconfigured installs untouched", async () => {
   const missingRegistry = {};
   const unsupportedRegistry = createHarness({
