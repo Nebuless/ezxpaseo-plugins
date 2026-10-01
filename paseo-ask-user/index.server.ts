@@ -17,7 +17,12 @@ export default function contribute(server: PluginServerContext) {
   broker.start();
 
   const removeCreateHook = server.before("agent.create", ({ request }) => {
-    if (request.config.internal) {
+    // Pi and OMP use native companions; their adapters reject session MCP servers.
+    if (
+      request.config.internal ||
+      request.config.provider === "omp" ||
+      request.config.provider === "pi"
+    ) {
       return request;
     }
     if (request.config.mcpServers?.[ASK_MCP_SERVER_NAME]) {

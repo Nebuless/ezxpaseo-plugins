@@ -1,0 +1,5 @@
+{
+  "id": "lifecycle-log",
+  "description": "Log turn completion without changing agent behavior",
+  "requirements": { "paseo": ">=0.9.2 <0.10.0" }
+}

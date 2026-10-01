@@ -1,0 +1,10 @@
+{
+  "accountRef": "local-workstation",
+  "accountLabel": "Local workstation",
+  "window": {
+    "start": "2026-09-29T00:00:00.000Z",
+    "end": "2026-09-30T00:00:00.000Z",
+    "usedActions": 25,
+    "actionLimit": 100
+  }
+}

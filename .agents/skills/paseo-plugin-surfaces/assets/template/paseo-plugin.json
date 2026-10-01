@@ -1,0 +1,7 @@
+{
+  "id": "surface-demo",
+  "description": "Accessible themed sidebar surface demo",
+  "requirements": {
+    "paseo": ">=0.9.2 <0.10.0"
+  }
+}

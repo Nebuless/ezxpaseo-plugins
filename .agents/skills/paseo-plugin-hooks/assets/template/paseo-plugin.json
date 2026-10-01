@@ -1,0 +1,7 @@
+{
+  "id": "hooks-policy-template",
+  "description": "Injects an interactive session environment marker and applies bounded lifecycle automation.",
+  "requirements": {
+    "paseo": ">=0.9.2 <0.10.0"
+  }
+}

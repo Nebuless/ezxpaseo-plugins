@@ -1,2 +1,17 @@
 node_modules/
 .DS_Store
+.codesight
+.unlazy
+.pi
+.omo
+.omp
+openspec
+backlog
+.worktrees/
+.qlty/configs/
+.qlty/logs
+.qlty/out
+.qlty/plugin_cachedir
+.qlty/results
+.qlty/sources/
+!.omo/init-deep.json

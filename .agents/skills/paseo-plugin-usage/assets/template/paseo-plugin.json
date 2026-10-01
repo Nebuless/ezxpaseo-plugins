@@ -1,0 +1,7 @@
+{
+  "id": "local-usage-template",
+  "description": "Reports real activity from a configured local metering JSON file.",
+  "requirements": {
+    "paseo": ">=0.9.3 <0.10.0"
+  }
+}

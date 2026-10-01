@@ -1,0 +1,7 @@
+{
+  "id": "hosts-template",
+  "description": "Lists configured hosts and explicitly reads agent counts from an online target.",
+  "requirements": {
+    "paseo": ">=0.9.2 <0.10.0"
+  }
+}

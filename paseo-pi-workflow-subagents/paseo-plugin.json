@@ -1,0 +1,7 @@
+{
+  "id": "paseo-pi-workflow-subagents",
+  "description": "Shows privacy-filtered Pi workflow and standalone sub-agent status in Paseo agent panels.",
+  "requirements": {
+    "paseo": ">=0.9.2"
+  }
+}

@@ -1,0 +1,10 @@
+# Version and changelog
+
+Repository starts at `0.0.0`, with a single pre-convention initial commit and no release tags. Plugin versions may have independent compatibility requirements; do not treat the root private package as a published Paseo plugin.
+
+1. Commit changes only when authorized, with `type(scope): subject`. Use `feat` for behavior, `fix` for corrections, `perf` for performance, `docs`, `test`, `build`, `ci`, `chore`, `refactor` for non-feature work. Use `!` or a `BREAKING CHANGE:` footer for incompatible behavior. `npm run commitlint` reads a proposed message on stdin.
+2. Choose SemVer bump for the release: `feat` suggests minor, `fix` and `perf` patch, breaking change major. While in `0.x`, decide pre-1.0 compatibility deliberately. Nonbehavioral types do not force release. Review affected plugin manifest and package compatibility independently; root version alone is not a plugin release.
+3. After authorized version update and committed Conventional Commit history, run `npm run changelog`. It regenerates `CHANGELOG.md` from full history using the `conventionalcommits` preset; inspect output before committing, never hand-edit generated release blocks. Early history lacking Conventional Commit headers is not a feature entry.
+4. Run `npm run check`, `npm run quality`, then inspect `git diff` and version tags. Tagging, publishing npm/Git sources, pushing, PR creation or merging require explicit user request. Repository contains no configured remote; do not claim an automatic release pipeline.
+
+Current Worktrunk project guidance asks generated messages to use Conventional Commits, but that prompt cannot guarantee them. `npm run commits:check` validates branch commits against `main` in the pre-merge gate. Use `wt merge --no-commit --no-squash` only when integration is authorized: those explicit flags preserve reviewed branch commits instead of squashing them. `npm run commitlint` checks one proposed message; commit-time local hooks or CI are not installed by default.

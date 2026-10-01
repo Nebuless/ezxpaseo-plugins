@@ -1,0 +1,5 @@
+{
+  "id": "attachment-demo",
+  "description": "Searchable in-memory Paseo documentation attachments",
+  "requirements": { "paseo": ">=0.9.2 <0.10.0" }
+}

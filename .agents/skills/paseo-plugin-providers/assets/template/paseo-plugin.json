@@ -1,0 +1,7 @@
+{
+  "id": "gemini-acp-template",
+  "description": "Registers the documented Gemini CLI ACP command from an explicit executable path.",
+  "requirements": {
+    "paseo": ">=0.9.2 <0.10.0"
+  }
+}
